@@ -1,4 +1,5 @@
-import React from "react";
+import React from 'react';
+import 'tailwindcss/tailwind.css';
 
 export default function RootLayout({
   children,
@@ -6,21 +7,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en'>
+    <html lang="en">
       <body>
         <header
           style={{
-            backgroundColor: "lightblue",
-            padding: "1rem",
-          }}>
+            backgroundColor: 'lightblue',
+            padding: '1rem',
+          }}
+        >
           <p>Header</p>
         </header>
         {children}
         <footer
           style={{
-            backgroundColor: "ghostwhite",
-            padding: "1rem",
-          }}>
+            backgroundColor: 'ghostwhite',
+            padding: '1rem',
+          }}
+        >
           <p>Footer</p>
         </footer>
       </body>

@@ -1,5 +1,5 @@
 {
-  "singleQuote": true, // 쌍따옴표 대신 홑따옴표 사용
+  "singleQuote": false, // 쌍따옴표 대신 홑따옴표 사용
   "semi": true, // 쌍따옴표 대신 홑따옴표 사용
   "useTabs": false, // 쌍따옴표 대신 홑따옴표 사용
   "tabWidth": 2, // 쌍따옴표 대신 홑따옴표 사용

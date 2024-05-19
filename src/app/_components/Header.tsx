@@ -12,9 +12,9 @@ const NAV_ITEM = [
 export default function Header() {
   const router = useRouter();
   return (
-    <header className="flex h-[64px] items-center justify-between">
+    <header className="flex h-[64px] items-center justify-between min-w-[1280px] mx-auto">
       <Link href="/">
-        <p className="text-2xl font-bold">이리온</p>
+        <p className="text-2xl px-[30px] font-bold">이리온</p>
       </Link>
       <nav>
         <ul className="flex gap-x-[100px] text-gray-800 min-w-[400px]">
@@ -34,7 +34,7 @@ export default function Header() {
           className="text-sm">
           회원가입
         </Button>
-        <Button className="text-sm" onClick={() => router.push("/")}>
+        <Button className="text-sm" onClick={() => router.push("/login")}>
           로그인
         </Button>
       </div>

@@ -9,9 +9,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
     <div className="flex flex-col min-h-screen mx-auto max-w-screen">
       <Header />
       <div className="flex-grow">
-        <main className="h-full">{children}</main>
+        <main className="h-screen">{children}</main>
       </div>
-      <Footer></Footer>
+      <Footer />
     </div>
   );
 }

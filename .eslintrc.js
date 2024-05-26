@@ -28,7 +28,7 @@ module.exports = {
   plugins: ["@typescript-eslint", "react"],
   rules: {
     "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+    "@typescript-eslint/consistent-type-definitions": ["error"],
     "react/react-in-jsx-scope": "off",
     "react/self-closing-comp": "error",
   },

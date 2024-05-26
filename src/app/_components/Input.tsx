@@ -12,10 +12,7 @@ export type INPUT_IDs = (typeof INPUT_IDs)[keyof typeof INPUT_IDs];
 
 export function InputLabel(props: { id: INPUT_IDs; label: string }) {
   return (
-    <label
-      htmlFor={props.id}
-      className={twMerge("font-medium text-[14px] text-black")}
-    >
+    <label htmlFor={props.id} className={"font-medium text-[14px] text-black"}>
       {props.label}
     </label>
   );

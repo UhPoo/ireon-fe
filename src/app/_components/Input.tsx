@@ -29,8 +29,8 @@ export const Input = forwardRef<HTMLInputElement, IInputProps>(
         ref={forwardedRef}
         id={props.id}
         className={twMerge(
+          "flex-1",
           "px-[12px] py-[8px]",
-          "w-[450px] h-[40px]",
           "rounded-md border-[1px] border-gray_E5E5E5",
           "text-[16px]",
           "focus:outline-none focus:border-green_1D7846 focus:ring-green_1D7846 focus:ring-1",

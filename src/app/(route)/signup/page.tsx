@@ -3,8 +3,8 @@
 import Button from "@/app/_components/Button";
 import { INPUT_IDs, Input, InputLabel } from "@/app/_components/Input";
 import { Strings } from "@/app/_resource/constants";
-import { useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 
 type FormFields = {
@@ -15,8 +15,30 @@ type FormFields = {
 };
 
 export default function SignUpPage() {
+  const EMAIL_VALIDATION_TIME = 1000 * 60 * 3;
+
   const [showEmailValidation, setShowEmailValidation] =
     useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const [emailValidationTimeLeft, setEmailValidationTimeLeft] =
+    useState<number>(-1);
+  const minutes = String(
+    Math.floor((emailValidationTimeLeft / (1000 * 60)) % 60)
+  ).padStart(2, "0");
+  const second = String(
+    Math.floor((emailValidationTimeLeft / 1000) % 60)
+  ).padStart(2, "0");
+
+  useEffect(() => {
+    if (emailValidationTimeLeft <= 0) return;
+
+    const intervalId = setInterval(() => {
+      setEmailValidationTimeLeft(emailValidationTimeLeft - 1000);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [emailValidationTimeLeft]);
 
   const {
     register,
@@ -24,16 +46,39 @@ export default function SignUpPage() {
     setError,
     formState: { errors },
     getValues,
+    watch,
   } = useForm<FormFields>();
+
+  const watchEmail = watch(INPUT_IDs.email);
 
   const onClickSendEmailValidation = (event: React.MouseEvent<HTMLElement>) => {
     event?.preventDefault(); // onSubmit 방지
 
+    var emailValidationResult = validateEmail(getValues(INPUT_IDs.email));
+
+    if (typeof emailValidationResult == "string") {
+      setError(INPUT_IDs.email, {
+        message: emailValidationResult,
+      });
+
+      return;
+    }
+
+    setShowEmailValidation(emailValidationResult);
+    setEmailValidationTimeLeft(EMAIL_VALIDATION_TIME);
+
     try {
       // todo: 이메일 인증 번호 발송
-      if (validateEmail(getValues(INPUT_IDs.email)) == true) {
-        setShowEmailValidation(true);
-      }
+    } catch (error) {
+      //
+    }
+  };
+
+  const onClickEmailValidation = () => {
+    event?.preventDefault(); // onSubmit 방지
+    try {
+      // todo: 이메일 인증
+      setShowPassword(true);
     } catch (error) {
       //
     }
@@ -53,7 +98,11 @@ export default function SignUpPage() {
   const validateEmail = (value: string): boolean | string => {
     const REGEX_EMAIL = /^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/;
 
-    if (!REGEX_EMAIL.test(value)) {
+    if (value == undefined) return "NO Email";
+
+    if (value.length == 0) {
+      return Strings.SIGN_UP_ERROR_EMAIL_REQUIRED;
+    } else if (!REGEX_EMAIL.test(value)) {
       return Strings.SIGN_UP_ERROR_INVALID_EMAIL;
     }
     return true;
@@ -106,10 +155,14 @@ export default function SignUpPage() {
               {errors.email.message}
             </div>
           )}
-          {/* 이메일 인증하기 버튼 */}
+          {/* 이메일 인증 번호 발송 버튼 */}
           <Button
             className={"w-full h-[40px] font-medium text-[14px]"}
-            variant={"primary_outlined"}
+            variant={
+              validateEmail(watchEmail) == true
+                ? "primary_outlined"
+                : "disabled_outlined"
+            }
             onClick={onClickSendEmailValidation}
           >
             {showEmailValidation
@@ -118,35 +171,67 @@ export default function SignUpPage() {
           </Button>
 
           {/* 이메일 인증 번호 */}
-          {showEmailValidation && (
-            <>
-              <InputLabel
-                id={INPUT_IDs.emailValidation}
-                label={Strings.SIGN_UP_EMAIL_VALIDATION_CODE}
-              />
-              <Input
-                id={INPUT_IDs.emailValidation}
-                placeholder={Strings.SIGN_UP_EMAIL_VALIDATION_CODE}
-                {...register(INPUT_IDs.emailValidation, {
-                  required:
-                    Strings.SIGN_UP_ERROR_ENTER_VALIDATION_CODE_IN_EMAIL,
-                  validate: (value) => {
-                    // todo: 이메일 인증 번호 체크
-                    return true;
-                  },
-                })}
-              />
-              {errors.emailValidation && (
-                <div className={"font-medium text-[14px] text-red_EF4444"}>
-                  {errors.emailValidation.message}
+          <div
+            className={twMerge(
+              "space-y-[8px]",
+              "transition duration-300 ease-in-out",
+              "opacity-0 translate-y-[100px]",
+              showEmailValidation && "opacity-100 translate-y-0"
+            )}
+          >
+            <InputLabel
+              id={INPUT_IDs.emailValidation}
+              label={Strings.SIGN_UP_EMAIL_VALIDATION_CODE}
+            />
+            <div className={"flex h-[40px] space-x-[10px]"}>
+              <div className={"relative w-full flex items-center"}>
+                <Input
+                  id={INPUT_IDs.emailValidation}
+                  placeholder={Strings.SIGN_UP_EMAIL_VALIDATION_CODE}
+                  {...register(INPUT_IDs.emailValidation, {
+                    required:
+                      Strings.SIGN_UP_ERROR_ENTER_VALIDATION_CODE_IN_EMAIL,
+                  })}
+                />
+                <div
+                  className={twMerge(
+                    "absolute right-[10px]",
+                    "font-medium text-red_EF4444"
+                  )}
+                >
+                  {`${minutes}:${second}`}
                 </div>
-              )}
-            </>
-          )}
+              </div>
+              {/* 이메일 인증번호 인증 버튼 */}
+              <Button
+                className={"w-[65px] font-medium text-[14px]"}
+                variant={
+                  emailValidationTimeLeft > 0
+                    ? "primary_filled"
+                    : "disabled_filled"
+                }
+                onClick={onClickEmailValidation}
+              >
+                {Strings.SIGN_UP_EMAIL_VALIDATION}
+              </Button>
+            </div>
+            {errors.emailValidation && (
+              <div className={"font-medium text-[14px] text-red_EF4444"}>
+                {errors.emailValidation.message}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 비밀번호 */}
-        <div className={"flex flex-col mb-[15px] space-y-[8px]"}>
+        <div
+          className={twMerge(
+            "flex flex-col mb-[15px] space-y-[8px]",
+            "transition duration-300 ease-in-out",
+            "opacity-0 translate-y-[100px]",
+            showPassword && "opacity-100 translate-y-0"
+          )}
+        >
           <InputLabel
             id={INPUT_IDs.password}
             label={Strings.SIGN_UP_PASSWORD}
@@ -187,12 +272,11 @@ export default function SignUpPage() {
               {errors.passwordConfirm.message}
             </div>
           )}
+          {/* 회원가입하기 버튼 */}
+          <Button className={"w-full h-[40px] font-medium text-[14px]"}>
+            {Strings.SIGN_UP_DONE}
+          </Button>
         </div>
-
-        {/* 다음 버튼 */}
-        <Button className={"w-full h-[40px] font-medium text-[14px]"}>
-          {Strings.NEXT}
-        </Button>
       </form>
     </div>
   );

@@ -7,7 +7,9 @@ const VARIANTS = {
     "bg-white border-[1px] border-green_2BAE66 text-green_2BAE66 hover:border-green_209957 hover:text-green_209957",
   red_filled: "bg-red_EF4444 hover:bg-red_DC2626 text-white",
   ghost: "bg-transparent text-green_2BAE66 hover:bg-opacity-50",
-  disabled: "bg-slate-500 text-white cursor-default",
+  disabled_filled: "bg-slate-500 text-white cursor-default",
+  disabled_outlined:
+    "bg-white border-[1px] border-slate-300 text-slate-300 cursor-default",
 };
 
 type IButtonProps = {
